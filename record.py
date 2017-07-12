@@ -4,6 +4,7 @@
 import sys
 import MySQLdb
 import time
+import json
 from config import db_config
 
 def getdb():
@@ -34,5 +35,7 @@ if __name__ == '__main__':
                           %(alertname,target,loss,rtt,hostname,create_time)
         db[0].execute(sql)
         db[1].commit()
-    except:
-        pass
+    except Exception,e:
+        with open('error.log','a+') as f:
+            msg = json.dumps(sys.argv) + "\n\r" + str(e) + "\n\r"
+            f.write(msg)
