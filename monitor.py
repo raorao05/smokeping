@@ -31,8 +31,8 @@ def getTimeBetween():
 
 def getMinData(begin_time,end_time):
     global db
-    begin_time = '2017-06-29 22:40'
-    end_time = '2017-06-29 22:41'
+    # begin_time = '2017-06-29 22:40'
+    # end_time = '2017-06-29 22:41'
     sql = "SELECT * FROM alert WHERE create_time BETWEEN '%s' AND '%s'"%(begin_time,end_time)
     db[0].execute(sql)
     ret = db[0].fetchall()
@@ -40,9 +40,15 @@ def getMinData(begin_time,end_time):
     for i in ret:
         target_list = i['target'].split('.')
         target = target_list[1] #yidong/liantong/dianxin
+        alertname = i['alertname']
         if not data.get(target):
-            data[target] = []
-        data[target].append(i)
+            data[target] = {
+                alertname : []
+            }
+            #data[target][alertname] = []
+        if not data[target].get(alertname):
+            data[target][alertname] = []
+        data[target][alertname].append(i)
     return data
 
 
@@ -55,7 +61,7 @@ def sendEmail(msg):
                 },
         }
         time_info,msg_info = [],[]
-        mytime = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()-60))
+        mytime = time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()-60))
         for i in range(0,len(email_list)):
                 time_info.append(mytime)
                 msg_info.append(msg)
@@ -83,16 +89,20 @@ if __name__ == '__main__':
         oneMinBeforeData = getMinData(between[1],between[0])
         msg = ''
         for i in oneMinBeforeData:
-            if len(oneMinBeforeData[i]) >= 2: #一分钟内同一运营商有两个点超时或者丢包，需要报警
-                print oneMinBeforeData[i]
-                msg += "<br>########################<br>"
-                msg += '运营商:%s'%str(i) + "<br>"
-                for j in oneMinBeforeData[i]:
-                    del(j['create_time'])
-                    del(j['id'])
-                    msg += '报警内容:%s'%json.dumps(j) + "<br>"
-                msg += '########################'
+            for j in oneMinBeforeData[i]:
+                if len(oneMinBeforeData[i][j]) >= 2: #一分钟内同一运营商有两个点超时或者丢包，需要报警
+                    msg += "<br>########################<br>"
+                    msg += '运营商:%s'%str(i) + "<br>"
+                    msg += '故障类型:%s'%str(j) + "<br>"
+                    for k in oneMinBeforeData[i][j]:
+                        del(k['create_time'])
+                        del(k['id'])
+                        msg += '报警内容:%s'%json.dumps(k) + "<br>"
+                    msg += '########################'
         if msg:
             print sendEmail(msg)
-    except:
-        pass
+    except Exception,e:
+        error_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+        err_msg = "time:" +error_time + "\n\r" + str(e) + "\n\r"
+        with open('monitor_error.log','a+') as f:
+            f.write(err_msg)
