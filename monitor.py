@@ -110,7 +110,7 @@ if __name__ == '__main__':
                 if len(oneMinBeforeData[i][j]) >= 2: #一分钟内同一运营商有两个点超时或者丢包，需要报警
                     for k in oneMinBeforeData[i][j]:
                         target = k['target'].split('.')[1] # dianxin-nanchong-2
-                        if target.find('dianxin-nanchong') or target.find('dianxin-foshan'):
+                        if target.find('dianxin-nanchong') != -1 or target.find('dianxin-foshan') != -1:
                             new_data.remove(k)
 
                     if len(new_data) >= 2:
