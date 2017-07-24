@@ -34,6 +34,8 @@ def getMinData(begin_time,end_time):
     global db
     #begin_time = '2017-07-19 07:32'
     #end_time = '2017-07-19 07:33'
+    #begin_time = '2017-07-24 09:24'
+    #end_time = '2017-07-24 09:25'
     sql = "SELECT * FROM alert WHERE create_time BETWEEN '%s' AND '%s'"%(begin_time,end_time)
     db[0].execute(sql)
     ret = db[0].fetchall()
@@ -83,7 +85,7 @@ def sendEmail(msg,email):
 
 def write_log(msg,msg_type):
     mytime = time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()-60))
-    mymsg = "warning_type:" + msg_type + "\n\r" + "warning_time:" +mytime + "\n\r" + "msg" + msg + "\n\r"
+    mymsg = "\n\rwarning_type:" + msg_type + "\n\r" + "warning_time:" +mytime + "\n\r" + "msg" + msg + "\n\r"
     with open('log/warning.log','a+') as f:
         f.write(mymsg)
 
@@ -96,7 +98,8 @@ if __name__ == '__main__':
         db = getdb()
         between = getTimeBetween()
         oneMinBeforeData = getMinData(between[1],between[0])
-        msg_admin = msg_guest = ''
+        oneMinBeforeDataCopy = copy.deepcopy(oneMinBeforeData)
+        msg_admin,msg_guest = '',''
 
         #给内部人员发的告警信
         for i in oneMinBeforeData:
@@ -112,25 +115,23 @@ if __name__ == '__main__':
                     msg_admin += '########################'
 
         #给外部人发的告警信
-        for i in oneMinBeforeData:
-            for j in oneMinBeforeData[i]:
-                new_data = copy.deepcopy(oneMinBeforeData[i][j])
-                if len(oneMinBeforeData[i][j]) >= 2: #一分钟内同一运营商有两个点超时或者丢包，需要报警
-                    for k in oneMinBeforeData[i][j]:
+        for i in oneMinBeforeDataCopy:
+            for j in oneMinBeforeDataCopy[i]:
+                if len(oneMinBeforeDataCopy[i][j]) >= 2: #一分钟内同一运营商有两个点超时或者丢包，需要报警
+                    for k in oneMinBeforeDataCopy[i][j]:
                         target = k['target'].split('.')[1] # dianxin-nanchong-2
                         if target.find('dianxin-nanchong') != -1 or target.find('dianxin-foshan') != -1:
-                            new_data.remove(k)
+                            oneMinBeforeDataCopy[i][j].remove(k)
 
-                    if len(new_data) >= 2:
+                    if len(oneMinBeforeDataCopy[i][j]) >= 2:
                         msg_guest += "<br>########################<br>"
                         msg_guest += '运营商:%s'%str(i) + "<br>"
                         msg_guest += '故障类型:%s'%str(j) + "<br>"
-                        for k in new_data:
+                        for k in oneMinBeforeDataCopy[i][j]:
                             del(k['create_time'])
                             del(k['id'])
                             msg_guest += '报警内容:%s'%json.dumps(k) + "<br>"
                         msg_guest += '########################'
-
         if msg_admin:
             if not msg_guest:
                 msg_admin += '<br>注：本次只是内部告警，未发送到斗鱼'
