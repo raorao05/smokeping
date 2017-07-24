@@ -81,6 +81,14 @@ def sendEmail(msg,email):
         return ret
 
 
+def write_log(msg,msg_type):
+    mytime = time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time()-60))
+    mymsg = "warning_type:" + msg_type + "\n\r" + "warning_time:" +mytime + "\n\r" + "msg" + msg + "\n\r"
+    with open('log/warning.log','a+') as f:
+        f.write(mymsg)
+
+
+
 
 if __name__ == '__main__':
     try:
@@ -128,14 +136,17 @@ if __name__ == '__main__':
                 msg_admin += '<br>注：本次只是内部告警，未发送到斗鱼'
             else:
                 msg_admin += '<br>注：本次告警，斗鱼也会收到'
+
+            write_log(msg_admin,'admin')
             email = email_list['admin']
             print sendEmail(msg_admin,email)
 
         if msg_guest:
             email = email_list['guest']
+            write_log(msg_guest,'guest')
             print sendEmail(msg_guest,email)
     except Exception,e:
         error_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         err_msg = "time:" +error_time + "\n\r" + str(e) + "\n\r"
-        with open('monitor_error.log','a+') as f:
+        with open('log/monitor_error.log','a+') as f:
             f.write(err_msg)
