@@ -42,7 +42,7 @@ def getIp(o):
 
 def mtr(ip):
     tmp = '/tmp/%d'%int(time.time())
-    command = "/usr/sbin/mtr  -n -i 0.3 -c 10 -r -w  %s > %s" %(ip,tmp)
+    command = "/usr/sbin/mtr  -n -i 0.3 -c 50 -r -w  %s > %s" %(ip,tmp)
     osname = socket.gethostname()
     mtr_res = subprocess.Popen(command,stdout=subprocess.PIPE, stderr=None, shell=True).communicate()
     res = ''
