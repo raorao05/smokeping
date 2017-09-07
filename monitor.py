@@ -2,12 +2,16 @@
 # encoding:utf8
 # send alert msg,run as crontab job each 1 mintue
 
+import os
+import re
 import sys
 import copy
 import time
 import json
+import socket
 import MySQLdb
 import requests
+import subprocess
 from config import db_config,email_list,send_email_config
 
 
@@ -29,6 +33,26 @@ def getTimeBetween():
     time3 = time.strftime('%Y-%m-%d %H:%M',time.localtime(time.time() - 180))
     return [time1,time2,time3]
 
+def getIp(o):
+    respone = requests.get('http://ip.taobao.com/service/getIpInfo.php?ip='+o)
+    t = respone.content
+    data = json.loads(t)
+    return data['data']['country'],data['data']['city'],data['data']['isp']
+
+
+def mtr(ip):
+    tmp = '/tmp/%d'%int(time.time())
+    command = "/usr/sbin/mtr  -n -i 0.3 -c 50 -r -w  %s > %s" %(ip,tmp)
+    osname = socket.gethostname()
+    mtr_res = subprocess.Popen(command,stdout=subprocess.PIPE, stderr=None, shell=True).communicate()
+    res = ''
+    with open(tmp,'r') as f:
+        for i in f:
+            res += i.strip() + "             <br>\n\r"
+
+    os.remove(tmp) 
+    return res
+    
 
 def getMinData(begin_time,end_time):
     global db
@@ -93,6 +117,8 @@ def write_log(msg,msg_type):
 
 
 if __name__ == '__main__':
+    #mtr('119.97.145.130')
+    #sys.exit()
     try:
         global db
         db = getdb()
@@ -112,6 +138,9 @@ if __name__ == '__main__':
                         del(k['create_time'])
                         del(k['id'])
                         msg_admin += '报警内容:%s'%json.dumps(k) + "<br>"
+                        hostname = k['hostname']
+                        mtr_res = mtr(hostname)
+                        msg_admin += "mtr :<br> %s"%mtr_res + "<br>"
                     msg_admin += '########################'
 
         #给外部人发的告警信
@@ -131,6 +160,9 @@ if __name__ == '__main__':
                             del(k['create_time'])
                             del(k['id'])
                             msg_guest += '报警内容:%s'%json.dumps(k) + "<br>"
+                            hostname = k['hostname']
+                            mtr_res = mtr(hostname)
+                            msg_guest += "mtr :<br> %s"%mtr_res + "<br>"
                         msg_guest += '########################'
         if msg_admin:
             if not msg_guest:

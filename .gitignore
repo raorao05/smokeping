@@ -1,3 +1,4 @@
 *.pyc
 config.py
 .Db_store
+log/

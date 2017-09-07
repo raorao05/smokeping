@@ -1,0 +1,499 @@
+*** General ***
+
+owner    = 北京亚信通科技有限公司
+contact  = ry@yaxintong.cn
+mailhost = my.mail.host
+sendmail = /usr/sbin/sendmail
+# NOTE: do not put the Image Cache below cgi-bin
+# since all files under cgi-bin will be executed ... this is not
+# good for images.
+imgcache = /usr/local/smokeping/cache
+imgurl   = cache
+datadir  = /usr/local/smokeping/data
+piddir  = /usr/local/smokeping/var
+#cgiurl   = http://some.url/smokeping.cgi
+cgiurl   = http://119.90.56.124/smokeping.cgi
+smokemail = /usr/local/smokeping/etc/smokemail.dist
+tmail = /usr/local/smokeping/etc/tmail.dist
+# specify this to get syslog logging
+syslogfacility = local0
+# each probe is now run in its own process
+# disable this to revert to the old behaviour
+# concurrentprobes = no
+
+*** Alerts ***
+to = |/opt/smokeping/alert.sh
+#to = ry@yaxintong.cn
+from = monitor@yaxintong.cn
+
++loss
+type = loss
+# in percent
+pattern = >10%
+comment = 一分钟丢包大于10个
+
++delay
+type = rtt
+# in milliseconds
+pattern = >100
+comment = 延时大于100ms
+*** Database ***
+
+#step     = 300
+#pings    = 20
+
+step     = 120
+pings    = 20
+# consfn mrhb steps total
+
+AVERAGE  0.5   1  1008
+AVERAGE  0.5  12  4320
+    MIN  0.5  12  4320
+    MAX  0.5  12  4320
+AVERAGE  0.5 144   720
+    MAX  0.5 144   720
+    MIN  0.5 144   720
+
+*** Presentation ***
+
+charset = utf-8
+template = /usr/local/smokeping/etc/basepage.html.dist
+
+#+ charts
+
+#menu = Charts
+#title = The most interesting destinations
+
+#++ stddev
+#sorter = StdDev(entries=>4)
+#title = Top Standard Deviation
+#menu = Std Deviation
+#format = Standard Deviation %f
+
+#++ max
+#sorter = Max(entries=>5)
+#title = Top Max Roundtrip Time
+#menu = by Max
+#format = Max Roundtrip Time %f seconds
+
+#++ loss
+#sorter = Loss(entries=>5)
+#title = Top Packet Loss
+#menu = Loss
+#format = Packets Lost %f
+
+#++ median
+#sorter = Median(entries=>5)
+#title = Top Median Roundtrip Time
+#menu = by Median
+#format = Median RTT %f seconds
+
++ overview
+
+width = 600
+height = 50
+range = 10h
+
++ detail
+
+width = 600
+height = 200
+unison_tolerance = 2
+
+"Last 1 Hours"    1h
+"Last 24 Hours"   24h
+"Last 7 Days"    7d
+"Last 365 Days"   365d
+
+++ loss_colors
+#Loss Color   Legend
+1    00ff00    "<1"
+3    0000ff    "<3"
+1000 ff0000    ">=3"
+#0 00ff00 "0%"
+#6 ff00ff "10%"
+#12 0000ff "20%"
+#30 00ffff "50%"
+
+#+ hierarchies
+#++ owner
+#title = Host Owner
+#++ location
+#title = Location
+
+*** Probes ***
+
++ FPing
+
+binary = /usr/local/sbin/fping
+
+++ FPing0
+blazemode = true
+packetsize = 64
+offset = 0%
+
+++ FPing1
+blazemode = true
+packetsize = 64
+offset = 40%
+
+++ FPing2
+blazemode = true
+packetsize = 64
+offset = 75%
+
+++ FPing3
+blazemode = true
+packetsize = 64
+offset = 95%
+
+
+
+*** Slaves ***
+secrets=/usr/local/smokeping/etc/smokeping_secrets.dist
++boomer
+display_name=boomer
+color=0000ff
+
++slave2
+display_name=another
+color=00ff00
+
+*** Targets ***
+probe = FPing0
+menu = Top
+title = 北京兆维机房网络监控
+#remark = Welcome to the SmokePing website of 北京亚信通科技有限公司 Company. \
+#         Here you will learn all about the latency of our network.
+
+remark = 请点击左边的链接获取具体的数据
+
+
+
+#电信
++ dianxin
+menu = 电信网络监控
+title = 监控统计
+alerts = loss,delay
+#host = /dianxin/dianxin-fuxin /dianxin/dianxin-xuzhou /dianxin/dianxin-foshan /dianxin/dianxin-fuxin /dianxin/dianxin-hangzhou /dianxin/dianxin-nanchong /dianxin/dianxin-tianjin /dianxin/dianxin-wuhan  /dianxin/dianxin-yangzhou /dianxin/dianxin-foshan/foshan-1 /dianxin/dianxin-foshan/foshan-2 /dianxin/dianxin-foshan/foshan-3 /dianxin/dianxin-hangzhou/hangzhou-1 /dianxin/dianxin-hangzhou/hangzhou-2 /dianxin/dianxin-hangzhou/hangzhou-3 host = /dianxin/dianxin-nanchong/nanchong-1 #/dianxin/dianxin-nanchong/nanchong-2 /dianxin/dianxin-nanchong/nanchong-3  /dianxin/dianxin-tianjin/tianjin-1 /dianxin/dianxin-tianjin/tianjin-2 /dianxin/dianxin-tianjin/tianjin-3 /dianxin/dianxin-wuhan/wuhan-1 /dianxin/dianxin-wuhan/wuhan-2 /dianxin/dianxin-wuhan/wuhan-3 /dianxin/dianxin-yangzhou/yangzhou-1 /dianxin/dianxin-yangzhou/yangzhou-2 /dianxin/dianxin-yangzhou/yangzhou-3
+
+++ dianxin-fuxin
+menu = 阜新
+title = 阜新
+host = 59.45.168.246
+
+
+++ dianxin-xuzhou
+menu = 徐州
+title = 徐州
+host = 221.229.163.130
+
+++ dianxin-foshan
+menu = 佛山
+title = 佛山
+host = 183.2.233.2
+
+#++ dianxin-foshan-1
+#menu = 佛山1
+#title = 佛山1
+#host = 183.2.233.2
+
+#++ dianxin-foshan-2
+#menu = 佛山2
+#title = 佛山2
+#host = 183.2.233.3
+
+#++ dianxin-foshan-3
+#menu = 佛山3
+#title = 佛山3
+#host = 183.2.233.4
+
+++ dianxin-hangzhou
+menu = 杭州
+title = 杭州
+host = 115.231.96.18
+
+#++ dianxin-hangzhou-1
+#menu = 杭州1
+#title = 杭州1
+#host = 115.231.96.18
+
+#++ dianxin-hangzhou-2
+#menu = 杭州2
+#title = 杭州2
+#host = 115.231.96.19
+
+#++ dianxin-hangzhou-3
+#menu = 杭州3
+#title = 杭州3
+#host = 115.231.96.20
+
+++ dianxin-nanchong
+menu = 南充
+title = 南充
+host = 220.167.12.146
+
+#++ dianxin-nanchong-1
+#menu = 南充1
+#title = 南充1
+#host = 220.167.12.146
+
+#++ dianxin-nanchong-2
+#menu = 南充2
+#title = 南充电信2
+#host = 220.167.12.147
+
+#++ dianxin-nanchong-3
+#menu = 南充3
+#title = 南充3
+#host = 220.167.12.148
+
+#++ dianxin-tianjin
+#menu = 天津
+#title = 天津
+
+#++ dianxin-tianjin-1
+#menu = 天津1
+#title = 天津1
+#host = 123.150.206.162
+#
+#++ dianxin-tianjin-2
+#menu = 天津2
+#title = 天津2
+#host = 123.150.206.163
+#
+#++ dianxin-tianjin-3
+#menu = 天津3
+#title = 天津3
+#host = 123.150.206.164
+
+++ dianxin-wuhan
+menu = 武汉
+title = 武汉
+host = 119.97.145.130
+
+#++ dianxin-wuhan-1
+#menu = 武汉1
+#title = 武汉1
+#host = 119.97.145.130
+
+#++ dianxin-wuhan-2
+#menu = 武汉2
+#title = 武汉2
+#host = 119.97.145.152
+
+#++ dianxin-wuhan-3
+#menu = 武汉3
+#title = 武汉3
+#host = 119.97.145.171
+
+++ dianxin-yangzhou
+menu = 扬州
+title = 扬州
+host = 180.97.182.50
+
+
+#++ dianxin-yangzhou-1
+#menu = 扬州1
+#title = 扬州1
+#host = 180.97.182.50
+
+#++ dianxin-yangzhou-2
+#menu = 扬州2
+#title = 扬州2
+#host = 180.97.182.51
+
+#++ dianxin-yangzhou-3
+#menu = 扬州3
+#title = 扬州3
+#host = 180.97.182.52
+
+
+
+
+
+
+
++ liantong
+probe = FPing1
+menu = 联通网络监控
+title = 联通网络监控列表
+alerts = loss,delay
+#host = /liantong/liantong-tangshan /liantong/liantong-changchun /liantong/liantong-meishan /liantong/liantong-guangzhou /liantong/liantong-ningbo /liantong/liantong-ezhou /liantong/liantong-jinan /liantong/liantong-shenyang /liantong/liantong-tianjin /liantong/liantong-ezhou/ezhou-1 /liantong/liantong-ezhou/ezhou-2 /liantong/liantong-ezhou/ezhou-3 /liantong/liantong-jinan/jinan-1 /liantong/liantong-jinan/jinan-2 /liantong/liantong-jinan/jinan-3 /liantong/liantong-shenyang/shenyang-1 #/liantong/liantong-shenyang/shenyang-2 /liantong/liantong-shenyang/shenyang-3 /liantong/liantong-tianjin/tianjin-1 /liantong/liantong-tianjin/tianjin-2 /liantong/liantong-tianjin/tianjin-3
+
+++ liantong-tangshan
+menu = 唐山
+title = 唐山
+host = 218.199.110.35
+
+++ liantong-changchun
+menu = 长春
+title = 长春
+host = 122.143.15.186
+
+++ liantong-meishan
+menu = 眉山
+title = 眉山
+host = 221.10.205.116
+
+++ liantong-guangzhou
+menu = 广州
+title = 广州
+host = 221.5.96.23
+
+++ liantong-ningbo
+menu = 宁波
+title = 宁波
+host = 101.71.88.169
+
+++ liantong-ezhou
+menu = 鄂州
+title = 鄂州
+host = 211.91.140.130
+
+#++ liantong-ezhou-1
+#menu = 鄂州1
+#title = 鄂州1
+#host = 211.91.140.130
+
+#++ liantong-ezhou-2
+#menu = 鄂州2
+#title = 鄂州2
+#host = 211.91.140.131
+
+#++ liantong-ezhou-3
+#menu = 鄂州3
+#title = 鄂州3
+#host = 211.91.140.132
+
+++ liantong-jinan
+menu = 济南
+title = 济南
+host = 119.188.98.98
+
+
+#++ liantong-jinan-1
+#menu = 济南1
+#title = 济南1
+#host = 119.188.98.98
+
+#++ liantong-jinan-2
+#menu = 济南2
+#title = 济南2
+#host = 119.188.98.99
+
+#++ liantong-jinan-3
+#menu = 济南3
+#title = 济南3
+#host = 119.188.98.100
+
+++ liantong-shenyang
+menu = 沈阳
+title = 沈阳
+host = 124.95.174.146
+
+#++ liantong-shenyang-1
+#menu = 沈阳1
+#title = 沈阳1
+#host = 124.95.174.146
+
+#++ liantong-shenyang-2
+#menu = 沈阳2
+#title = 沈阳2
+#host = 124.95.174.147
+
+#++ liantong-shenyang-3
+#menu = 沈阳3
+#title = 沈阳3
+#host = 124.95.174.148
+
+++ liantong-tianjin
+menu = 天津
+title = 天津
+host = 125.39.58.99
+
+#++ liantong-tianjin-1
+#menu = 天津1
+#title = 天津1
+#host = 125.39.58.99
+
+#++ liantong-tianjin-2
+#menu = 天津2
+#title = 天津2
+#host = 125.39.58.100
+
+#++ liantong-tianjin-3
+#menu = 天津3
+#title = 天津3
+#host = 125.39.58.101
+
+
++ yidong
+probe = FPing2
+menu = 移动网络监控
+title = 移动网络监控列表
+alerts = loss,delay
+#host = /yidong/yidong-jinan /yidong/yidong-guizhou /yidong/yidong-hangzhou /yidong/yidong-wuhan /yidong/yidong-jinan /yidong/yidong-jinan /yidong/yidong-jinan /yidong/yidong-hangzhou/hangzhou-1 /yidong/yidong-hangzhou/hangzhou-2 /yidong/yidong-hangzhou/hangzhou-3 /yidong/yidong-wuhan/wuhan-1 /yidong/yidong-wuhan/wuhan-2 /yidong/yidong-wuhan/wuhan-3
+
+++ yidong-jinan
+menu = 济南
+title = 济南
+host = 223.99.254.250
+
+++ yidong-guizhou
+menu = 贵州
+title = 贵州移动
+host = 117.187.26.60
+
+++ yidong-hangzhou
+menu = 杭州
+title = 杭州
+host = 218.205.114.210
+
+#++ yidong-hangzhou-1
+#menu = 杭州1
+#title = 杭州1
+#host = 218.205.114.210
+
+#++ yidong-hangzhou-2
+#menu = 杭州2
+#title = 杭州2
+#host = 218.205.114.211
+
+#++ yidong-hangzhou-3
+#menu = 杭州3
+#title = 杭州3
+#host = 218.205.114.212
+
+++ yidong-wuhan
+menu = 武汉
+title = 武汉
+host = 111.47.108.34
+
+#++ yidong-wuhan-1
+#menu = 武汉1
+#title = 武汉1
+#host = 111.47.108.34
+
+#++ yidong-wuhan-2
+#menu = 武汉2
+#title = 武汉2
+#host = 111.47.108.35
+
+#++ yidong-wuhan-3
+#menu = 武汉3
+#title = 武汉3
+#host = 111.47.108.36
+
+
+
+
++ jiaoyu
+probe = FPing3
+menu = 教育网络监控
+title = 教育网络监控列表
+alerts = loss,delay
+++ jiaoyu-hubei
+menu = 湖北教育网
+title = 湖北教育网
+host = 220.194.199.222
